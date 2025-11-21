@@ -13,14 +13,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           // Base styles
           'block w-full px-4 py-2.5 rounded-lg',
-          'bg-transparent border border-gray-300',
+          'bg-white border-2 border-gray-300',
           'text-gray-900 placeholder:text-gray-400',
-          'focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent',
-          'transition-colors',
-          'disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed',
+          'focus:outline-none focus:ring-2 focus:ring-brand-navy focus:border-brand-navy',
+          'transition-all duration-200',
+          'shadow-sm hover:border-gray-400',
+          'disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed disabled:border-gray-200',
 
           // Border states
-          error && 'border-red-500 focus:ring-red-500',
+          error && 'border-red-500 focus:ring-red-500 focus:border-red-500',
 
           className
         )}

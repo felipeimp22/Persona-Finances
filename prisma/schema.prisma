@@ -7,3 +7,163 @@ datasource db {
   provider = "mongodb"
   url      = env("NEXT_DATABASE_URL")
 }
+
+// ==========================================
+// USER MODELS
+// ==========================================
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// BILL MODELS
+// ==========================================
+
+model FixedBill {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  amount      Float
+  dueDay      Int            // 1-31 (day of month)
+  category    String?
+  isActive    Boolean        @default(true)
+  createdBy   String         // felipe or carol
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  instances   BillInstance[]
+
+  @@index([isActive])
+  @@index([createdBy])
+}
+
+model OneTimeBill {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  totalAmount Float
+  paidAmount  Float          @default(0)
+  dueDate     DateTime
+  status      String         // pending, partial, paid
+  createdBy   String         // felipe or carol
+  notes       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  payments    Payment[]
+  instances   BillInstance[]
+
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdBy])
+}
+
+model Payment {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  billId    String      @db.ObjectId
+  bill      OneTimeBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+  amount    Float
+  date      DateTime
+  paidBy    String      // felipe or carol
+  notes     String?
+  createdAt DateTime    @default(now())
+
+  @@index([billId])
+  @@index([paidBy])
+}
+
+// Bill Instance - Represents a specific bill for a specific month
+model BillInstance {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Link to parent bills
+  fixedBillId   String?     @db.ObjectId
+  fixedBill     FixedBill?  @relation(fields: [fixedBillId], references: [id], onDelete: Cascade)
+
+  oneTimeBillId String?     @db.ObjectId
+  oneTimeBill   OneTimeBill? @relation(fields: [oneTimeBillId], references: [id], onDelete: Cascade)
+
+  // Bill details (copied from parent for this month)
+  name          String
+  amount        Float
+  dueDate       DateTime    // Specific date for this month
+  category      String?
+
+  // Payment tracking
+  status        String      // unpaid, paid, overdue, partial
+  paidAmount    Float       @default(0)
+  paidDate      DateTime?
+  paidBy        String?     // felipe or carol
+
+  // Month tracking
+  month         DateTime    // First day of the month this bill belongs to
+  isOverdue     Boolean     @default(false)
+  daysOverdue   Int         @default(0)
+
+  // Metadata
+  createdBy     String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([month])
+  @@index([status])
+  @@index([dueDate])
+  @@index([fixedBillId])
+  @@index([oneTimeBillId])
+  @@index([isOverdue])
+}
+
+// ==========================================
+// INCOME MODEL
+// ==========================================
+
+model Income {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  person    String   // felipe or carol
+  amount    Float
+  type      String   // salary, freelance, bonus, other
+  month     DateTime // first day of month
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([person])
+  @@index([month])
+}
+
+// ==========================================
+// EXPENSE MODEL
+// ==========================================
+
+model Expense {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  amount      Float
+  date        DateTime
+  category    String   // food, transport, entertainment, shopping, bills, other
+  paidBy      String   // felipe or carol
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+  @@index([category])
+  @@index([paidBy])
+}
+
+// ==========================================
+// BUDGET WARNING MODEL
+// ==========================================
+
+model BudgetWarning {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  type        String   // percentage, upcoming_bills, insufficient_funds
+  threshold   Float?   // for percentage warnings (0.8 = 80%)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+}

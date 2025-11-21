@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OrderChop - Restaurant Management Platform",
-  description: "Turn your restaurant into a profit machine",
+  title: "Personal Finance Manager - Felipe & Caroline",
+  description: "Manage your household finances together",
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -33,11 +34,11 @@ export default async function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-x-hidden`}>
-        <QueryProvider>
-
+        <SessionProvider>
+          <QueryProvider>
             {children}
-
-        </QueryProvider>
+          </QueryProvider>
+        </SessionProvider>
       </body>
     </html>
   );

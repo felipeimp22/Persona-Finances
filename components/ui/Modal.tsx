@@ -52,24 +52,26 @@ export default function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
         ref={modalRef}
         className={cn(
-          'relative bg-white rounded-sm shadow-xl w-full max-h-[90vh] flex flex-col',
+          'relative bg-white rounded-xl shadow-2xl w-full max-h-[90vh] flex flex-col',
+          'animate-in zoom-in-95 duration-200',
           sizeClasses[size],
           className
         )}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+          <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg p-2 transition-all duration-200"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -80,7 +82,7 @@ export default function Modal({
         </div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
             {footer}
           </div>
         )}
@@ -88,3 +90,6 @@ export default function Modal({
     </div>
   );
 }
+
+// Named export for consistency
+export { Modal };
