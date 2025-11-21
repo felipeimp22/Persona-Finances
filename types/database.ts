@@ -45,6 +45,28 @@ export interface Payment {
   createdAt: Date;
 }
 
+export interface BillInstance {
+  id: string;
+  fixedBillId?: string | null;
+  oneTimeBillId?: string | null;
+  name: string;
+  amount: number;
+  dueDate: Date;
+  category?: string | null;
+  status: 'unpaid' | 'paid' | 'overdue' | 'partial';
+  paidAmount: number;
+  paidDate?: Date | null;
+  paidBy?: string | null; // 'felipe' | 'carol'
+  month: Date; // first day of month
+  isOverdue: boolean;
+  daysOverdue: number;
+  createdBy: string; // 'felipe' | 'carol'
+  createdAt: Date;
+  updatedAt: Date;
+  fixedBill?: FixedBill;
+  oneTimeBill?: OneTimeBill;
+}
+
 export interface Income {
   id: string;
   person: string; // 'felipe' | 'carol'
@@ -116,3 +138,28 @@ export interface FinancialSummary {
   categoryBreakdown: CategorySpending[];
   upcomingBills: (FixedBill | OneTimeBill)[];
 }
+
+// Month tracking types
+export interface MonthSummary {
+  // Current month bills
+  currentMonthTotal: number;      // All bills due this month
+  currentMonthPaid: number;       // Amount paid this month
+  currentMonthUnpaid: number;     // Still to pay this month
+  currentMonthCount: number;      // Number of bills this month
+
+  // Overdue bills
+  overdueTotal: number;           // Total overdue from previous months
+  overdueCount: number;           // Number of overdue bills
+
+  // Combined totals
+  totalDue: number;               // currentMonthUnpaid + overdueTotal
+  totalPaid: number;              // Total paid (current month)
+
+  // Status
+  hasOverdue: boolean;
+  isOnTrack: boolean;             // No overdue, current month manageable
+  completionPercentage: number;   // (currentMonthPaid / currentMonthTotal) * 100
+}
+
+export type CreateBillInstanceInput = Omit<BillInstance, 'id' | 'createdAt' | 'updatedAt' | 'fixedBill' | 'oneTimeBill'>;
+export type UpdateBillInstanceInput = Partial<CreateBillInstanceInput> & { id: string };

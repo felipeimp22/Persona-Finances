@@ -25,32 +25,34 @@ model User {
 // ==========================================
 
 model FixedBill {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   amount      Float
-  dueDay      Int      // 1-31 (day of month)
+  dueDay      Int            // 1-31 (day of month)
   category    String?
-  isActive    Boolean  @default(true)
-  createdBy   String   // felipe or carol
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean        @default(true)
+  createdBy   String         // felipe or carol
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  instances   BillInstance[]
 
   @@index([isActive])
   @@index([createdBy])
 }
 
 model OneTimeBill {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
   description String
   totalAmount Float
-  paidAmount  Float     @default(0)
+  paidAmount  Float          @default(0)
   dueDate     DateTime
-  status      String    // pending, partial, paid
-  createdBy   String    // felipe or carol
+  status      String         // pending, partial, paid
+  createdBy   String         // felipe or carol
   notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   payments    Payment[]
+  instances   BillInstance[]
 
   @@index([status])
   @@index([dueDate])
@@ -69,6 +71,47 @@ model Payment {
 
   @@index([billId])
   @@index([paidBy])
+}
+
+// Bill Instance - Represents a specific bill for a specific month
+model BillInstance {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Link to parent bills
+  fixedBillId   String?     @db.ObjectId
+  fixedBill     FixedBill?  @relation(fields: [fixedBillId], references: [id], onDelete: Cascade)
+
+  oneTimeBillId String?     @db.ObjectId
+  oneTimeBill   OneTimeBill? @relation(fields: [oneTimeBillId], references: [id], onDelete: Cascade)
+
+  // Bill details (copied from parent for this month)
+  name          String
+  amount        Float
+  dueDate       DateTime    // Specific date for this month
+  category      String?
+
+  // Payment tracking
+  status        String      // unpaid, paid, overdue, partial
+  paidAmount    Float       @default(0)
+  paidDate      DateTime?
+  paidBy        String?     // felipe or carol
+
+  // Month tracking
+  month         DateTime    // First day of the month this bill belongs to
+  isOverdue     Boolean     @default(false)
+  daysOverdue   Int         @default(0)
+
+  // Metadata
+  createdBy     String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([month])
+  @@index([status])
+  @@index([dueDate])
+  @@index([fixedBillId])
+  @@index([oneTimeBillId])
+  @@index([isOverdue])
 }
 
 // ==========================================
