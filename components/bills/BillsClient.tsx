@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Toggle } from "@/components/ui/Toggle";
+import Toggle from "@/components/ui/Toggle";
 import { format } from "date-fns";
 import { deleteFixedBill, toggleBillActive } from "@/app/actions/bills";
 import { deleteOneTimeBill } from "@/app/actions/debts";

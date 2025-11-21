@@ -54,7 +54,6 @@
   "devDependencies": {
     "@prisma/nextjs-monorepo-workaround-plugin": "^6.19.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/date-fns": "^2.5.3",
     "@types/node": "^20.19.23",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",

@@ -83,7 +83,7 @@ export async function getDashboardData(month: Date): Promise<{ success: boolean;
     }, {} as Record<string, number>);
 
     const categoryBreakdown: CategorySpending[] = Object.entries(categoryMap).map(
-      ([category, amount]) => ({
+      ([category, amount]: [string, number]) => ({
         category,
         amount,
         percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
