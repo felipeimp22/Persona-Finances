@@ -1,6 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import  prisma  from "@/lib/prisma";
+
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import type { CreateFixedBillInput, UpdateFixedBillInput } from "@/types/database";

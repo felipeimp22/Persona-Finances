@@ -1,6 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import  prisma  from "@/lib/prisma";
+
 import { auth } from "@/lib/auth";
 import { startOfMonth, endOfMonth, getDaysInMonth, addDays, startOfDay } from "date-fns";
 import type { DashboardData, CategorySpending, FinancialSummary } from "@/types/database";

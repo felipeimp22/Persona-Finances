@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { Modal } from "@/components/ui/Modal";
+import  Modal  from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Select";
+import  Select  from "@/components/ui/Select";
 import { createExpense } from "@/app/actions/expenses";
 import { useRouter } from "next/navigation";
 
