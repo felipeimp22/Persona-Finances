@@ -4,20 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run schema:combine && prisma generate && next build",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "postinstall": "node scripts/schemaCombine.js && prisma generate",
-    "db:generate": "npm run schema:combine && dotenv -e .env.local -- prisma generate",
-    "schema:combine": "node scripts/schemaCombine.js",
-    "db:push": "dotenv -e .env.local -- prisma db push",
-    "db:studio": "dotenv -e .env.local -- prisma studio",
-    "docker:up": "docker-compose up -d",
-    "docker:prune": "docker volume prune -f",
-    "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f",
-    "seed:essentials": "tsx seeds/seedProfileEssentials.ts",
-    "stripe:webhook": "stripe listen --forward-to http://localhost:3000/api/webhooks/stripe"
+    "postinstall": "prisma generate",
+    "schema:combine": "node scripts/schemaCombine.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

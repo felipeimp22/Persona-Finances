@@ -1,16 +1,7 @@
-import type { NextConfig } from "next";
-import createNextIntlPlugin from 'next-intl/plugin';
+import type { NextConfig } from 'next';
 import { PrismaPlugin } from '@prisma/nextjs-monorepo-workaround-plugin';
 
-
-export const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', '@prisma/engines'],
-  },
+const config: NextConfig = {
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()];
@@ -18,3 +9,5 @@ export const nextConfig: NextConfig = {
     return config;
   },
 };
+
+export default config;
