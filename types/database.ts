@@ -30,6 +30,7 @@ export interface OneTimeBill {
   status: 'pending' | 'partial' | 'paid';
   createdBy: string; // 'felipe' | 'carol'
   notes?: string | null;
+  category?: string | null;
   createdAt: Date;
   updatedAt: Date;
   payments?: Payment[];
