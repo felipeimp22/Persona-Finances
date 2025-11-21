@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -27,17 +27,18 @@ export function PaymentModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Calculate remaining amount when bill changes
+  // Calculate remaining amount
   const remainingAmount = bill ? bill.amount - bill.paidAmount : 0;
 
   // Reset form when bill changes or modal opens
-  const handleOpen = () => {
-    if (bill) {
+  useEffect(() => {
+    if (isOpen && bill) {
       setAmount(remainingAmount.toFixed(2));
       setDate(format(new Date(), "yyyy-MM-dd"));
       setError("");
+      setIsSubmitting(false);
     }
-  };
+  }, [isOpen, bill, remainingAmount]);
 
   // Reset form on close
   const handleClose = () => {
@@ -84,7 +85,6 @@ export function PaymentModal({
       isOpen={isOpen}
       onClose={handleClose}
       title="Record Payment"
-      onAfterOpen={handleOpen}
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Bill Information */}

@@ -49,6 +49,7 @@ model OneTimeBill {
   status      String         // pending, partial, paid
   createdBy   String         // felipe or carol
   notes       String?
+  category    String?        // for categorization (debt, medical, emergency, etc.)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   payments    Payment[]

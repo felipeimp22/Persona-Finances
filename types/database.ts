@@ -27,9 +27,10 @@ export interface OneTimeBill {
   totalAmount: number;
   paidAmount: number;
   dueDate: Date;
-  status: 'pending' | 'partial' | 'paid';
-  createdBy: string; // 'felipe' | 'carol'
+  status: string; // pending, partial, paid
+  createdBy: string; // felipe or carol
   notes?: string | null;
+  category?: string | null;
   createdAt: Date;
   updatedAt: Date;
   payments?: Payment[];
@@ -53,14 +54,14 @@ export interface BillInstance {
   amount: number;
   dueDate: Date;
   category?: string | null;
-  status: 'unpaid' | 'paid' | 'overdue' | 'partial';
+  status: string; // unpaid, paid, overdue, partial
   paidAmount: number;
   paidDate?: Date | null;
-  paidBy?: string | null; // 'felipe' | 'carol'
+  paidBy?: string | null; // felipe or carol
   month: Date; // first day of month
   isOverdue: boolean;
   daysOverdue: number;
-  createdBy: string; // 'felipe' | 'carol'
+  createdBy: string; // felipe or carol
   createdAt: Date;
   updatedAt: Date;
   fixedBill?: FixedBill;
@@ -69,9 +70,9 @@ export interface BillInstance {
 
 export interface Income {
   id: string;
-  person: string; // 'felipe' | 'carol'
+  person: string; // felipe or carol
   amount: number;
-  type: 'salary' | 'freelance' | 'bonus' | 'other';
+  type: string; // salary, freelance, bonus, other
   month: Date; // first day of month
   notes?: string | null;
   createdAt: Date;
@@ -83,8 +84,8 @@ export interface Expense {
   description: string;
   amount: number;
   date: Date;
-  category: 'food' | 'transport' | 'entertainment' | 'shopping' | 'bills' | 'other';
-  paidBy: string; // 'felipe' | 'carol'
+  category: string; // food, transport, entertainment, shopping, bills, other
+  paidBy: string; // felipe or carol
   notes?: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -92,7 +93,7 @@ export interface Expense {
 
 export interface BudgetWarning {
   id: string;
-  type: 'percentage' | 'upcoming_bills' | 'insufficient_funds';
+  type: string; // percentage, upcoming_bills, insufficient_funds
   threshold?: number | null; // 0.8 = 80%
   isActive: boolean;
   createdAt: Date;

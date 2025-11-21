@@ -1,5 +1,27 @@
 import { Card } from "@/components/ui/Card";
-import { formatDistanceToNow, format } from "date-fns";
+import { format, differenceInDays, differenceInHours } from "date-fns";
+
+// Helper function to format distance to now
+function formatDistanceToNow(date: Date): string {
+  const now = new Date();
+  const daysDiff = differenceInDays(date, now);
+  const hoursDiff = differenceInHours(date, now);
+
+  if (daysDiff < 0) {
+    const absDays = Math.abs(daysDiff);
+    if (absDays === 0) return "today";
+    if (absDays === 1) return "yesterday";
+    return `${absDays} days ago`;
+  } else if (daysDiff === 0) {
+    if (hoursDiff === 0) return "now";
+    if (hoursDiff < 0) return `${Math.abs(hoursDiff)} hours ago`;
+    return `in ${hoursDiff} hours`;
+  } else if (daysDiff === 1) {
+    return "tomorrow";
+  } else {
+    return `in ${daysDiff} days`;
+  }
+}
 
 interface Bill {
   id: string;
@@ -80,7 +102,7 @@ export function UpcomingBills({ bills }: UpcomingBillsProps) {
                       Due {format(bill.dueDate, "MMM d")}
                     </span>
                     <span className="text-gray-500">
-                      ({formatDistanceToNow(bill.dueDate, { addSuffix: true })})
+                      ({formatDistanceToNow(bill.dueDate)})
                     </span>
                   </div>
                   {bill.type === "onetime" && bill.status && (

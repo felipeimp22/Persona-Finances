@@ -8,12 +8,25 @@ import { Card } from "@/components/ui/Card";
 import {
   startOfMonth,
   endOfMonth,
-  eachDayOfInterval,
   format,
   isSameDay,
   startOfWeek,
   endOfWeek,
+  addDays,
+  differenceInDays,
 } from "date-fns";
+
+// Helper function to generate array of days in a range
+function getDaysInRange(start: Date, end: Date): Date[] {
+  const days: Date[] = [];
+  const dayCount = differenceInDays(end, start) + 1;
+
+  for (let i = 0; i < dayCount; i++) {
+    days.push(addDays(start, i));
+  }
+
+  return days;
+}
 
 export default async function CalendarPage() {
   const session = await auth();
@@ -39,8 +52,8 @@ export default async function CalendarPage() {
   const fixedBills = fixedBillsResult.success ? fixedBillsResult.data : [];
   const oneTimeBills = oneTimeBillsResult.success ? oneTimeBillsResult.data : [];
 
-  // Generate calendar days
-  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  // Generate calendar days using our helper function
+  const calendarDays = getDaysInRange(calendarStart, calendarEnd);
 
   // Function to get items for a specific day
   const getItemsForDay = (day: Date) => {
