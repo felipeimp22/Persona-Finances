@@ -81,6 +81,24 @@ export async function createOneTimeBill(data: CreateOneTimeBillInput) {
         status: data.status ?? "pending",
         createdBy: data.createdBy,
         notes: data.notes,
+        category: data.category,
+      },
+    });
+
+    // Auto-generate bill instance for the month it's due
+    const billMonth = new Date(data.dueDate.getFullYear(), data.dueDate.getMonth(), 1);
+
+    await prisma.billInstance.create({
+      data: {
+        oneTimeBillId: bill.id,
+        name: bill.description,
+        amount: bill.totalAmount,
+        dueDate: bill.dueDate,
+        category: bill.category || undefined,
+        month: billMonth,
+        status: "unpaid",
+        paidAmount: 0,
+        createdBy: data.createdBy,
       },
     });
 

@@ -78,6 +78,25 @@ export async function createFixedBill(data: CreateFixedBillInput) {
       },
     });
 
+    // Auto-generate bill instance for current month
+    const today = new Date();
+    const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const dueDate = new Date(today.getFullYear(), today.getMonth(), data.dueDay);
+
+    await prisma.billInstance.create({
+      data: {
+        fixedBillId: bill.id,
+        name: bill.name,
+        amount: bill.amount,
+        dueDate: dueDate,
+        category: bill.category || undefined,
+        month: currentMonth,
+        status: "unpaid",
+        paidAmount: 0,
+        createdBy: data.createdBy,
+      },
+    });
+
     revalidatePath("/bills");
     revalidatePath("/dashboard");
 
