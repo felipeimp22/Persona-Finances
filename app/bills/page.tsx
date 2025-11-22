@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getFixedBills } from "@/app/actions/bills";
 import { getOneTimeBills } from "@/app/actions/debts";
-import { getPaidBillInstances } from "@/app/actions/month-tracking";
+import { getPaidBillInstances, getOverdueBills } from "@/app/actions/month-tracking";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { BillsClient } from "./BillsClient";
 
@@ -13,14 +13,15 @@ export default async function BillsPage() {
     redirect("/login");
   }
 
-  // Fetch all bills and paid bill instances
-  const [fixedBillsResult, oneTimeBillsResult, paidBillsResult] = await Promise.all([
+  // Fetch all bills types
+  const [fixedBillsResult, oneTimeBillsResult, paidBillsResult, overdueBillsResult] = await Promise.all([
     getFixedBills(),
     getOneTimeBills(),
     getPaidBillInstances(),
+    getOverdueBills(),
   ]);
 
-  if (!fixedBillsResult.success || !oneTimeBillsResult.success || !paidBillsResult.success) {
+  if (!fixedBillsResult.success || !oneTimeBillsResult.success || !paidBillsResult.success || !overdueBillsResult.success) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
@@ -37,7 +38,7 @@ export default async function BillsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Bills Management</h1>
           <p className="text-gray-600 mt-1">
-            Manage your fixed recurring bills and one-time bills
+            Manage your fixed recurring bills, one-time bills, overdue payments, and view payment history
           </p>
         </div>
 
@@ -46,6 +47,7 @@ export default async function BillsPage() {
           initialFixedBills={fixedBillsResult.data!}
           initialOneTimeBills={oneTimeBillsResult.data!}
           paidBillInstances={paidBillsResult.data!}
+          overdueBillInstances={overdueBillsResult.data!}
           currentUser={session.user.username}
         />
       </div>

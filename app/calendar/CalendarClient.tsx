@@ -18,16 +18,12 @@ import {
 interface CalendarClientProps {
   initialMonth: Date;
   expenses: any[];
-  fixedBills: any[];
-  oneTimeBills: any[];
   billInstances: any[];
 }
 
 export function CalendarClient({
   initialMonth,
   expenses,
-  fixedBills,
-  oneTimeBills,
   billInstances,
 }: CalendarClientProps) {
   const router = useRouter();
@@ -68,18 +64,36 @@ export function CalendarClient({
           amount: expense.amount,
           description: expense.description,
           category: expense.category,
+          paidBy: expense.paidBy,
         });
       }
     });
 
-    // Add bill instances (paid or unpaid)
+    // Add FIXED bill instances (due dates) - unpaid only
     billInstances?.forEach((billInstance: any) => {
-      if (isSameDay(new Date(billInstance.dueDate), day)) {
+      // Only show FIXED bills as upcoming bills (not one-time bills)
+      if (billInstance.fixedBillId && isSameDay(new Date(billInstance.dueDate), day)) {
+        if (billInstance.status !== 'paid') {
+          items.push({
+            type: "unpaid-bill",
+            amount: billInstance.amount - billInstance.paidAmount,
+            description: billInstance.name,
+            status: billInstance.status,
+            category: billInstance.category,
+          });
+        }
+      }
+
+      // Add ALL PAYMENTS (both fixed and one-time bills)
+      if (billInstance.paidDate && isSameDay(new Date(billInstance.paidDate), day)) {
         items.push({
-          type: billInstance.status === "paid" ? "paid-bill" : "unpaid-bill",
-          amount: billInstance.amount,
-          description: billInstance.name,
-          status: billInstance.status,
+          type: "payment",
+          amount: billInstance.paidAmount,
+          description: `✅ ${billInstance.name}`,
+          category: billInstance.category,
+          paidBy: billInstance.paidBy,
+          isFixedBill: !!billInstance.fixedBillId,
+          isOneTimeBill: !!billInstance.oneTimeBillId,
         });
       }
     });
@@ -94,7 +108,7 @@ export function CalendarClient({
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Financial Calendar</h1>
         <p className="text-gray-600 mt-1">
-          View your bills and expenses by day
+          View your fixed bills, payments, and expenses by day
         </p>
       </div>
 
@@ -154,30 +168,28 @@ export function CalendarClient({
                         key={idx}
                         className={`text-xs p-1 rounded ${
                           item.type === "expense"
-                            ? "bg-orange-100 text-orange-700"
-                            : item.type === "paid-bill"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-orange-100 text-orange-700 border border-orange-300"
+                            : item.type === "payment"
+                            ? "bg-green-100 text-green-700 border border-green-300"
+                            : "bg-red-100 text-red-700 border border-red-300"
                         }`}
                         title={item.description}
                       >
-                        <div className="truncate">
+                        <div className="truncate font-medium">
                           {item.type === "expense" && "🛒"}
-                          {item.type === "paid-bill" && "✅"}
+                          {item.type === "payment" && "✅"}
                           {item.type === "unpaid-bill" && "💳"}
                           {" "}{item.description}
                         </div>
-                        <div className="font-semibold">${item.amount.toFixed(2)}</div>
+                        <div className="font-bold">${item.amount.toFixed(2)}</div>
+                        {item.paidBy && (
+                          <div className="text-[10px] opacity-75">by {item.paidBy}</div>
+                        )}
                       </div>
                     ))}
                     {items.length > 3 && (
-                      <div className="text-xs text-gray-500 text-center">
+                      <div className="text-xs text-gray-500 text-center font-medium">
                         +{items.length - 3} more
-                      </div>
-                    )}
-                    {totalAmount > 0 && (
-                      <div className="text-xs font-bold text-gray-900 pt-1 border-t border-gray-300">
-                        Total: ${totalAmount.toFixed(2)}
                       </div>
                     )}
                   </div>
@@ -193,18 +205,21 @@ export function CalendarClient({
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Legend</h3>
         <div className="grid grid-cols-3 gap-4">
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-orange-100 border border-orange-300 rounded"></div>
+            <div className="w-4 h-4 bg-orange-100 border-2 border-orange-300 rounded"></div>
             <span className="text-sm text-gray-700">🛒 Quick Expenses</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-            <span className="text-sm text-gray-700">✅ Paid Bills</span>
+            <div className="w-4 h-4 bg-green-100 border-2 border-green-300 rounded"></div>
+            <span className="text-sm text-gray-700">✅ Payments Made</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div>
-            <span className="text-sm text-gray-700">💳 Unpaid Bills</span>
+            <div className="w-4 h-4 bg-red-100 border-2 border-red-300 rounded"></div>
+            <span className="text-sm text-gray-700">💳 Fixed Bills Due</span>
           </div>
         </div>
+        <p className="text-xs text-gray-500 mt-3">
+          Note: Calendar shows fixed bill due dates and all payments (including one-time bill payments). One-time bill due dates are not shown on calendar.
+        </p>
       </Card>
     </div>
   );

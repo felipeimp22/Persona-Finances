@@ -8,21 +8,24 @@ import { AddOneTimeBillModal } from "@/components/bills/AddOneTimeBillModal";
 import { FixedBillsList } from "@/components/bills/FixedBillsList";
 import { OneTimeBillsList } from "@/components/bills/OneTimeBillsList";
 import { PaidBillsList } from "@/components/bills/PaidBillsList";
+import { OverdueBillsList } from "@/components/bills/OverdueBillsList";
 import type { FixedBill, OneTimeBill, BillInstance } from "@/types/database";
 
 interface BillsClientProps {
   initialFixedBills: FixedBill[];
   initialOneTimeBills: (OneTimeBill & { payments?: any[] })[];
   paidBillInstances: BillInstance[];
+  overdueBillInstances: BillInstance[];
   currentUser: string;
 }
 
-type TabType = "fixed" | "onetime" | "paid";
+type TabType = "fixed" | "onetime" | "overdue" | "paid";
 
 export function BillsClient({
   initialFixedBills,
   initialOneTimeBills,
   paidBillInstances,
+  overdueBillInstances,
   currentUser,
 }: BillsClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("fixed");
@@ -32,10 +35,10 @@ export function BillsClient({
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-200">
+      <div className="flex gap-2 border-b border-gray-200 overflow-x-auto">
         <button
           onClick={() => setActiveTab("fixed")}
-          className={`px-6 py-3 font-semibold transition-colors relative ${
+          className={`px-6 py-3 font-semibold transition-colors relative whitespace-nowrap ${
             activeTab === "fixed"
               ? "text-brand-navy border-b-2 border-brand-navy"
               : "text-gray-600 hover:text-gray-900"
@@ -45,7 +48,7 @@ export function BillsClient({
         </button>
         <button
           onClick={() => setActiveTab("onetime")}
-          className={`px-6 py-3 font-semibold transition-colors relative ${
+          className={`px-6 py-3 font-semibold transition-colors relative whitespace-nowrap ${
             activeTab === "onetime"
               ? "text-brand-navy border-b-2 border-brand-navy"
               : "text-gray-600 hover:text-gray-900"
@@ -54,8 +57,20 @@ export function BillsClient({
           One-Time Bills ({initialOneTimeBills.filter((b) => b.status !== "paid").length})
         </button>
         <button
+          onClick={() => setActiveTab("overdue")}
+          className={`px-6 py-3 font-semibold transition-colors relative whitespace-nowrap ${
+            activeTab === "overdue"
+              ? "text-brand-navy border-b-2 border-brand-navy"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          <span className={overdueBillInstances.length > 0 ? "text-red-600" : ""}>
+            Overdue ({overdueBillInstances.length})
+          </span>
+        </button>
+        <button
           onClick={() => setActiveTab("paid")}
-          className={`px-6 py-3 font-semibold transition-colors relative ${
+          className={`px-6 py-3 font-semibold transition-colors relative whitespace-nowrap ${
             activeTab === "paid"
               ? "text-brand-navy border-b-2 border-brand-navy"
               : "text-gray-600 hover:text-gray-900"
@@ -101,6 +116,25 @@ export function BillsClient({
           </div>
 
           <OneTimeBillsList bills={initialOneTimeBills} />
+        </div>
+      )}
+
+      {activeTab === "overdue" && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-red-700">Overdue Bills</h2>
+              <p className="text-gray-600 text-sm">Bills past their due date that need immediate attention</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Total Overdue</p>
+              <p className="text-2xl font-bold text-red-600">
+                ${overdueBillInstances.reduce((sum, b) => sum + (b.amount - b.paidAmount), 0).toFixed(2)}
+              </p>
+            </div>
+          </div>
+
+          <OverdueBillsList overdueBills={overdueBillInstances} currentUser={currentUser} />
         </div>
       )}
 

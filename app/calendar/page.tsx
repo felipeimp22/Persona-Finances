@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getMonthlyExpenses } from "@/app/actions/expenses";
-import { getFixedBills } from "@/app/actions/bills";
-import { getOneTimeBills } from "@/app/actions/debts";
-import { getMonthBillInstances } from "@/app/actions/month-tracking";
+import { getMonthBillInstances, initializeMonthTracking } from "@/app/actions/month-tracking";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { CalendarClient } from "./CalendarClient";
 import { startOfMonth, parse } from "date-fns";
@@ -34,17 +32,16 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
     currentMonth = startOfMonth(new Date());
   }
 
+  // CRITICAL: Initialize month tracking to generate bill instances for any month
+  await initializeMonthTracking(currentMonth);
+
   // Get all financial data for the selected month
-  const [expensesResult, fixedBillsResult, oneTimeBillsResult, billInstancesResult] = await Promise.all([
+  const [expensesResult, billInstancesResult] = await Promise.all([
     getMonthlyExpenses(currentMonth),
-    getFixedBills(true), // active only
-    getOneTimeBills(),
     getMonthBillInstances(currentMonth),
   ]);
 
   const expenses = expensesResult.success ? expensesResult.data?.expenses : [];
-  const fixedBills = fixedBillsResult.success ? fixedBillsResult.data : [];
-  const oneTimeBills = oneTimeBillsResult.success ? oneTimeBillsResult.data : [];
   const billInstances = billInstancesResult.success ? billInstancesResult.data : [];
 
   return (
@@ -52,8 +49,6 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
       <CalendarClient
         initialMonth={currentMonth}
         expenses={expenses || []}
-        fixedBills={fixedBills || []}
-        oneTimeBills={oneTimeBills || []}
         billInstances={billInstances || []}
       />
     </AppLayout>
