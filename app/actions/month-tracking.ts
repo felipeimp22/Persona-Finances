@@ -392,3 +392,34 @@ export async function deleteBillInstance(id: string) {
     return { success: false, error: "Failed to delete bill instance" };
   }
 }
+
+/**
+ * Get all paid bill instances (all time)
+ */
+export async function getPaidBillInstances(): Promise<{ success: boolean; data?: BillInstance[]; error?: string }> {
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new Error("Unauthorized");
+    }
+
+    const paidBills = await prisma.billInstance.findMany({
+      where: {
+        status: 'paid',
+      },
+      include: {
+        fixedBill: true,
+        oneTimeBill: true,
+      },
+      orderBy: [
+        { paidDate: 'desc' },
+        { dueDate: 'desc' },
+      ],
+    });
+
+    return { success: true, data: paidBills as any };
+  } catch (error) {
+    console.error("Error fetching paid bill instances:", error);
+    return { success: false, error: "Failed to fetch paid bills" };
+  }
+}

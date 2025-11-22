@@ -7,19 +7,22 @@ import { AddFixedBillModal } from "@/components/bills/AddFixedBillModal";
 import { AddOneTimeBillModal } from "@/components/bills/AddOneTimeBillModal";
 import { FixedBillsList } from "@/components/bills/FixedBillsList";
 import { OneTimeBillsList } from "@/components/bills/OneTimeBillsList";
-import type { FixedBill, OneTimeBill } from "@/types/database";
+import { PaidBillsList } from "@/components/bills/PaidBillsList";
+import type { FixedBill, OneTimeBill, BillInstance } from "@/types/database";
 
 interface BillsClientProps {
   initialFixedBills: FixedBill[];
   initialOneTimeBills: (OneTimeBill & { payments?: any[] })[];
+  paidBillInstances: BillInstance[];
   currentUser: string;
 }
 
-type TabType = "fixed" | "onetime";
+type TabType = "fixed" | "onetime" | "paid";
 
 export function BillsClient({
   initialFixedBills,
   initialOneTimeBills,
+  paidBillInstances,
   currentUser,
 }: BillsClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("fixed");
@@ -49,6 +52,16 @@ export function BillsClient({
           }`}
         >
           One-Time Bills ({initialOneTimeBills.filter((b) => b.status !== "paid").length})
+        </button>
+        <button
+          onClick={() => setActiveTab("paid")}
+          className={`px-6 py-3 font-semibold transition-colors relative ${
+            activeTab === "paid"
+              ? "text-brand-navy border-b-2 border-brand-navy"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          Paid Bills ({paidBillInstances.length})
         </button>
       </div>
 
@@ -88,6 +101,19 @@ export function BillsClient({
           </div>
 
           <OneTimeBillsList bills={initialOneTimeBills} />
+        </div>
+      )}
+
+      {activeTab === "paid" && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Paid Bills History</h2>
+              <p className="text-gray-600 text-sm">All bills that have been paid</p>
+            </div>
+          </div>
+
+          <PaidBillsList paidBills={paidBillInstances} />
         </div>
       )}
 

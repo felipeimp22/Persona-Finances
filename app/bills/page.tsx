@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getFixedBills } from "@/app/actions/bills";
 import { getOneTimeBills } from "@/app/actions/debts";
+import { getPaidBillInstances } from "@/app/actions/month-tracking";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { BillsClient } from "./BillsClient";
 
@@ -12,13 +13,14 @@ export default async function BillsPage() {
     redirect("/login");
   }
 
-  // Fetch all bills
-  const [fixedBillsResult, oneTimeBillsResult] = await Promise.all([
+  // Fetch all bills and paid bill instances
+  const [fixedBillsResult, oneTimeBillsResult, paidBillsResult] = await Promise.all([
     getFixedBills(),
     getOneTimeBills(),
+    getPaidBillInstances(),
   ]);
 
-  if (!fixedBillsResult.success || !oneTimeBillsResult.success) {
+  if (!fixedBillsResult.success || !oneTimeBillsResult.success || !paidBillsResult.success) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
@@ -43,6 +45,7 @@ export default async function BillsPage() {
         <BillsClient
           initialFixedBills={fixedBillsResult.data!}
           initialOneTimeBills={oneTimeBillsResult.data!}
+          paidBillInstances={paidBillsResult.data!}
           currentUser={session.user.username}
         />
       </div>
