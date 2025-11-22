@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { startOfMonth } from "date-fns";
+import { startOfMonth, format } from "date-fns";
 import { MonthSelector } from "@/components/month-tracking/MonthSelector";
 import { OverdueAlert } from "@/components/month-tracking/OverdueAlert";
 import { MonthSummaryCard } from "@/components/month-tracking/MonthSummaryCard";
@@ -28,11 +28,11 @@ export function DashboardClient({
     startOfMonth(new Date(initialMonth))
   );
 
-  // When month changes, navigate to refresh data
+  // When month changes, navigate with month parameter
   const handleMonthChange = (newMonth: Date) => {
     setCurrentMonth(newMonth);
-    // Force refresh by navigating to same page with new date
-    router.refresh();
+    const monthParam = format(newMonth, 'yyyy-MM');
+    router.push(`/dashboard?month=${monthParam}`);
   };
 
   // Handle marking bill as paid

@@ -8,16 +8,36 @@ import {
 } from "@/app/actions/month-tracking";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { DashboardClient } from "./DashboardClient";
-import { startOfMonth } from "date-fns";
+import { parse } from "date-fns";
+import { getVancouverStartOfMonth } from "@/lib/utils/timezone";
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams: Promise<{ month?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const session = await auth();
 
   if (!session) {
     redirect("/login");
   }
 
-  const currentMonth = startOfMonth(new Date());
+  // Get month from URL params or use current month (in Vancouver timezone)
+  const params = await searchParams;
+  const monthParam = params.month;
+
+  let currentMonth: Date;
+  if (monthParam) {
+    // Parse month from YYYY-MM format and convert to Vancouver timezone
+    try {
+      const parsed = parse(monthParam, 'yyyy-MM', new Date());
+      currentMonth = getVancouverStartOfMonth(parsed);
+    } catch {
+      currentMonth = getVancouverStartOfMonth();
+    }
+  } else {
+    currentMonth = getVancouverStartOfMonth();
+  }
 
   // Initialize month tracking (generates bills if needed, marks overdue)
   await initializeMonthTracking(currentMonth);

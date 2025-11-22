@@ -72,9 +72,6 @@ export function OverdueAlert({
                   View All Overdue Bills
                 </Button>
               </Link>
-              <Button variant="secondary" size="md">
-                Set Up Payment Plan
-              </Button>
             </div>
           </div>
         </div>

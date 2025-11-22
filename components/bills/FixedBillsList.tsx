@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { FixedBill } from "@/types/database";
 import { deleteFixedBill, toggleBillActive } from "@/app/actions/bills";
+import { EditFixedBillModal } from "./EditFixedBillModal";
 
 interface FixedBillsListProps {
   bills: FixedBill[];
@@ -14,9 +15,16 @@ interface FixedBillsListProps {
 export function FixedBillsList({ bills }: FixedBillsListProps) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [editingBill, setEditingBill] = useState<FixedBill | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const activeBills = bills.filter((b) => b.isActive);
   const inactiveBills = bills.filter((b) => !b.isActive);
+
+  const handleEdit = (bill: FixedBill) => {
+    setEditingBill(bill);
+    setIsEditModalOpen(true);
+  };
 
   const handleToggleActive = async (id: string) => {
     setLoadingId(id);
@@ -105,6 +113,13 @@ export function FixedBillsList({ bills }: FixedBillsListProps) {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handleEdit(bill)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleToggleActive(bill.id)}
                       disabled={loadingId === bill.id}
                     >
@@ -160,6 +175,13 @@ export function FixedBillsList({ bills }: FixedBillsListProps) {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handleEdit(bill)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleToggleActive(bill.id)}
                       disabled={loadingId === bill.id}
                     >
@@ -181,6 +203,13 @@ export function FixedBillsList({ bills }: FixedBillsListProps) {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <EditFixedBillModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        bill={editingBill}
+      />
     </div>
   );
 }

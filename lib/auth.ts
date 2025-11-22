@@ -12,7 +12,7 @@ const users = [
   {
     id: "2",
     username: "carol",
-    name: "Caroline",
+    name: "Carol",
     password: process.env.CAROL_PASSWORD,
   },
 ];

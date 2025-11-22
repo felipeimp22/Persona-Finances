@@ -21,13 +21,11 @@ export function BillInstanceList({
   const [selectedBill, setSelectedBill] = useState<BillInstance | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  // Separate bills into categories
-  const currentMonthBills = showOverdue
-    ? bills.filter((b) => !b.isOverdue)
-    : bills;
-  const overdueBills = showOverdue
-    ? bills.filter((b) => b.isOverdue)
-    : [];
+  // Separate bills into categories - show ALL bills
+  const overdueBills = bills.filter((b) => b.isOverdue && b.status !== 'paid');
+  const unpaidCurrentBills = bills.filter((b) => !b.isOverdue && b.status === 'unpaid');
+  const partiallyPaidBills = bills.filter((b) => b.status === 'partial');
+  const paidBills = bills.filter((b) => b.status === 'paid');
 
   const handleOpenPaymentModal = (bill: BillInstance) => {
     setSelectedBill(bill);
@@ -175,11 +173,11 @@ export function BillInstanceList({
     <>
       <div className="space-y-6">
         {/* Overdue Bills Section */}
-        {overdueBills.length > 0 && (
+        {showOverdue && overdueBills.length > 0 && (
           <div>
             <h3 className="text-xl font-bold text-red-700 mb-4 flex items-center gap-2">
               <span>🔴</span>
-              OVERDUE (From Previous Months)
+              OVERDUE ({overdueBills.length} bills - ${overdueBills.reduce((sum, b) => sum + (b.amount - b.paidAmount), 0).toFixed(2)})
             </h3>
             <div className="space-y-3">
               {overdueBills.map((bill) => (
@@ -189,15 +187,45 @@ export function BillInstanceList({
           </div>
         )}
 
-        {/* Current Month Bills Section */}
-        {currentMonthBills.length > 0 && (
+        {/* Partially Paid Bills */}
+        {partiallyPaidBills.length > 0 && (
+          <div>
+            <h3 className="text-xl font-bold text-yellow-700 mb-4 flex items-center gap-2">
+              <span>⏳</span>
+              PARTIALLY PAID ({partiallyPaidBills.length} bills)
+            </h3>
+            <div className="space-y-3">
+              {partiallyPaidBills.map((bill) => (
+                <BillCard key={bill.id} bill={bill} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Current Month Unpaid Bills */}
+        {unpaidCurrentBills.length > 0 && (
           <div>
             <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span>📋</span>
-              CURRENT MONTH
+              UNPAID THIS MONTH ({unpaidCurrentBills.length} bills - ${unpaidCurrentBills.reduce((sum, b) => sum + b.amount, 0).toFixed(2)})
             </h3>
             <div className="space-y-3">
-              {currentMonthBills.map((bill) => (
+              {unpaidCurrentBills.map((bill) => (
+                <BillCard key={bill.id} bill={bill} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Paid Bills Section */}
+        {paidBills.length > 0 && (
+          <div>
+            <h3 className="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+              <span>✅</span>
+              PAID THIS MONTH ({paidBills.length} bills - ${paidBills.reduce((sum, b) => sum + b.paidAmount, 0).toFixed(2)})
+            </h3>
+            <div className="space-y-3">
+              {paidBills.map((bill) => (
                 <BillCard key={bill.id} bill={bill} />
               ))}
             </div>
