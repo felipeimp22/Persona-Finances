@@ -8,16 +8,34 @@ import {
 } from "@/app/actions/month-tracking";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { DashboardClient } from "./DashboardClient";
-import { startOfMonth } from "date-fns";
+import { startOfMonth, parse } from "date-fns";
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams: Promise<{ month?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const session = await auth();
 
   if (!session) {
     redirect("/login");
   }
 
-  const currentMonth = startOfMonth(new Date());
+  // Get month from URL params or use current month
+  const params = await searchParams;
+  const monthParam = params.month;
+
+  let currentMonth: Date;
+  if (monthParam) {
+    // Parse month from YYYY-MM format
+    try {
+      currentMonth = startOfMonth(parse(monthParam, 'yyyy-MM', new Date()));
+    } catch {
+      currentMonth = startOfMonth(new Date());
+    }
+  } else {
+    currentMonth = startOfMonth(new Date());
+  }
 
   // Initialize month tracking (generates bills if needed, marks overdue)
   await initializeMonthTracking(currentMonth);

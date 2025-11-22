@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import type { OneTimeBill } from "@/types/database";
 import { deleteOneTimeBill } from "@/app/actions/debts";
 import { format, isPast } from "date-fns";
+import { EditOneTimeBillModal } from "./EditOneTimeBillModal";
 
 interface OneTimeBillsListProps {
   bills: (OneTimeBill & { payments?: any[] })[];
@@ -15,10 +16,17 @@ interface OneTimeBillsListProps {
 export function OneTimeBillsList({ bills }: OneTimeBillsListProps) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [editingBill, setEditingBill] = useState<OneTimeBill | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const pendingBills = bills.filter((b) => b.status === "pending");
   const partialBills = bills.filter((b) => b.status === "partial");
   const paidBills = bills.filter((b) => b.status === "paid");
+
+  const handleEdit = (bill: OneTimeBill) => {
+    setEditingBill(bill);
+    setIsEditModalOpen(true);
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this bill?")) return;
@@ -153,15 +161,24 @@ export function OneTimeBillsList({ bills }: OneTimeBillsListProps) {
                 ${remainingAmount.toFixed(2)}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDelete(bill.id)}
-              disabled={loadingId === bill.id}
-              className="text-red-600 hover:bg-red-50"
-            >
-              Delete
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleEdit(bill)}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDelete(bill.id)}
+                disabled={loadingId === bill.id}
+                className="text-red-600 hover:bg-red-50"
+              >
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
@@ -208,6 +225,13 @@ export function OneTimeBillsList({ bills }: OneTimeBillsListProps) {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <EditOneTimeBillModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        bill={editingBill}
+      />
     </div>
   );
 }
